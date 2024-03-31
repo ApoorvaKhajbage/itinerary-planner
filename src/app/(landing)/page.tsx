@@ -1,5 +1,6 @@
 "use client"
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import Head from "next/head";
 import Image from "next/image";
@@ -59,10 +60,8 @@ export default function landing() {
           </div>
         </div>
       </div>
-      <footer className="absolute bottom-0 w-full bg-gradient-to-r from-blue-500 to-indigo-500  text-white py-4 text-center">
-        <p>© 2024 wanderlog. All rights reserved.</p>
-      </footer>
-    </div>
+      <Footer/>
+      </div>
   )
 }
 
