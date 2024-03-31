@@ -16,7 +16,7 @@ import {Button} from "@/components/ui/button";
 import {LuMap, LuTag} from "react-icons/lu";
 import axios from "axios";
 import {FiUsers} from "react-icons/fi";
-import {CheckCheck, TicketCheckIcon} from "lucide-react";
+import {CheckCheck} from "lucide-react";
 
 export default function ItineraryForm() {
     const router = useRouter();
@@ -30,8 +30,8 @@ export default function ItineraryForm() {
         numChildren: "0",
         preferredTravelTime: "anytime",
         selectedPlaces: [],
-        selectedRestaurants: [],
         selectedHotels: [],
+        selectedActivities: [],
     });
     const [currentStep, setCurrentStep] = useState(1);
     const [selectedBudget, setSelectedBudget] = useState("");
@@ -40,11 +40,10 @@ export default function ItineraryForm() {
     const [selectedTravelTime, setSelectedTravelTime] = useState("anytime");
     const [selectedTravelType, setSelectedTravelType] = useState("");
     const [popularPlaces, setPopularPlaces] = useState({
-        things_to_do_list: []
+        things_to_do_list: [],
+        popularHotels: [],
+        activities_list: [],
     });
-    const [popularRestaurants, setPopularRestaurants] = useState([]);
-    const [popularHotels, setPopularHotels] = useState([]);
-    const [selectedPlaces, setSelectedPlaces] = useState([]);
 
     // useEffect(() => {
     //   // Fetch popular places, restaurants, and hotels based on the destination
@@ -82,7 +81,10 @@ export default function ItineraryForm() {
             const data = response.data.data;
             const geos_result = data.filter((item) => item.result_type === 'geos')[0].result_object;
             const things_to_do = data.filter((item) => item.result_type === 'things_to_do')
-            console.log(geos_result);
+            const lodging = data.filter((item) => item.result_type === 'lodging')
+            const available_activities = data.filter((item) => item.result_type === 'activities')
+
+            // console.log(geos_result);
 
             //     Extract only information that we need from geos
             const name = geos_result.name;
@@ -108,6 +110,24 @@ export default function ItineraryForm() {
                     }
                 }
             )
+            const popularHotels = lodging.map((item) => {
+                return {
+                    name: item.result_object.name,
+                    location_id: item.result_object.location_id,
+                    photo: item.result_object.photo.images.small.url,
+                    rating: item.result_object.rating,
+                    open_now_text: item.result_object.open_now_text
+                }
+            })
+            const activities_list = available_activities.map((item) => {
+                return {
+                    name: item.result_object.name,
+                    location_id: item.result_object.location_id,
+                    photo: item.result_object.photo.images.small.url,
+                    rating: item.result_object.rating,
+                    is_closed: item.result_object.is_closed
+                }
+            })
 
             const response_temp = {
                 name,
@@ -117,13 +137,61 @@ export default function ItineraryForm() {
                 shopping,
                 restaurants,
                 geo_description,
-                things_to_do_list
+                things_to_do_list,
+                popularHotels,
+                activities_list
             }
-            console.log(response_temp);
+            // console.log(response_temp);
             // return response_temp;
             setPopularPlaces(response_temp)
         } catch (error) {
             console.error(error);
+        }
+    }
+
+    const handleAddToPlаces = (place) => {
+        if (formData.selectedPlaces.includes(place)) {
+            setFormData({
+                ...formData,
+                selectedPlaces: formData.selectedPlaces.filter((p) => p !== place),
+            });
+        } else {
+            setFormData({
+                ...formData,
+                selectedPlaces: [...formData.selectedPlaces, place],
+            });
+            // console.log("Places: ", formData.selectedPlaces)
+        }
+    };
+
+    const handleAddToSelectedHotels = (hotel) => {
+        if (formData.selectedHotels.includes(hotel)) {
+            setFormData({
+                ...formData,
+                selectedHotels: formData.selectedHotels.filter((h) => h !== hotel),
+            });
+        } else {
+            setFormData({
+                ...formData,
+                selectedHotels: [...formData.selectedHotels, hotel],
+            });
+            // console.log("Hotels: ", formData.selectedHotels)
+        }
+
+    }
+
+    const handleAddToSelectedActivities = (activity) => {
+        if (formData.selectedActivities.includes(activity)) {
+            setFormData({
+                ...formData,
+                selectedActivities: formData.selectedActivities.filter((a) => a !== activity),
+            });
+        } else {
+            setFormData({
+                ...formData,
+                selectedActivities: [...formData.selectedActivities, activity],
+            });
+            console.log("Activities: ", formData.selectedActivities)
         }
     }
 
@@ -178,25 +246,7 @@ export default function ItineraryForm() {
         );
     }
 
-    const handleCheckboxChange = (e: any, type: any) => {
-        const {id, checked} = e.target;
-        const selectedItem = {
-            id,
-            type,
-        };
-        let selectedItems = [...formData[type]];
-
-        if (checked) {
-            selectedItems.push(selectedItem);
-        } else {
-            selectedItems = selectedItems.filter((item) => item.id !== id);
-        }
-
-        setFormData((prevState) => ({
-            ...prevState,
-            [type]: selectedItems,
-        }));
-    };
+    ;
 
     const renderStepContent = () => {
         switch (currentStep) {
@@ -615,7 +665,9 @@ export default function ItineraryForm() {
                         {/*    <li>Restaurants: {popularPlaces.restaurants}</li>*/}
                         {/*    <li>Geo Description: {popularPlaces.geo_description}</li>*/}
                         {/*</ul>*/}
-                        <div className={"flex bg-muted p-6 rounded-2xl"}>
+
+                        {/*Information part*/}
+                        <div className={"flex flex-col lg:flex-row bg-muted p-6 rounded-2xl"}>
                             <Card>
                                 <CardContent>
                                     Test Card
@@ -650,141 +702,197 @@ export default function ItineraryForm() {
                                                 {place.open_now_text ? place.open_now_text : "Status not available"}
                                             </p>
                                             <Button
-                                                onClick={() => {
-                                                    setFormData({
-                                                        ...formData,
-                                                        selectedPlaces: [...formData.selectedPlaces, place]
-                                                    })
-                                                //     Change button text to remove from plan, and functionality to remove from plan
-
-                                                }
-                                                }
-                                                className={"w-32 self-center justify-self-end"}
+                                                onClick={() => handleAddToPlаces(place)}
+                                                className={`w-32 self-center justify-self-end ${
+                                                    formData.selectedPlaces.includes(place)
+                                                        ? 'bg-green-500 hover:bg-green-600 text-white'
+                                                        : ''
+                                                }`}
                                             >
-                                               <CheckCheck className={"h-6 w-6"}/>
-                                                Add to Plan
+                                                {/*  TODO: hide added message after 2-3 seconds and change button to remove*/}
+                                                {formData.selectedPlaces.includes(place) ? (
+                                                    <>
+                                                        <CheckCheck className={"h-6 w-6"}/>
+                                                        Added
+                                                    </>
+                                                ) : (
+                                                    'Add to Plan'
+                                                )}
                                             </Button>
                                         </CardContent>
                                     </Card>
                                 ))}
                             </div>
                         </div>
+                        <div className={"place-self-end"}>
+                            <Buttons/>
+                        </div>
                     </div>
-
                 )
             case 5:
                 return (
-                    <div>
-                        <Label className="text-lg font-bold mb-2">
-                            Select Popular Restaurants
-                        </Label>
-                        <div className="grid gap-4">
-                            {popularRestaurants.map((restaurant) => (
-                                <Card
-                                    key={restaurant.id}
-                                    className="p-4 border border-gray-200 rounded-md shadow-md"
-                                >
-                                    <input
-                                        type="checkbox"
-                                        id={restaurant.id}
-                                        name={restaurant.name}
-                                        checked={formData.selectedRestaurants.some(
-                                            (item) => item.id === restaurant.id
-                                        )}
-                                        onChange={(e) =>
-                                            handleCheckboxChange(e, "selectedRestaurants")
-                                        }
-                                    />
-                                    <label htmlFor={restaurant.id}>{restaurant.name}</label>
-                                </Card>
-                            ))}
+                    <div className={"flex flex-col justify-end gap-y-2 p-4"}>
+                        <div className={"flex bg-muted p-6 rounded-2xl"}>
+                            <Card>
+                                <CardContent>
+                                    Test Card
+                                </CardContent>
+                            </Card>
+                            <div className={"flex flex-col items-start max-w-4xl"}>
+                                <h1 className={"text-3xl font-bold p-4"}>{popularPlaces.name}</h1>
+                                <p className={"text-foreground p-4"}>{popularPlaces.geo_description}</p>
+                                <div className={"flex gap-x-4 px-4"}>
+                                    <p>{popularPlaces.activities}+ activities</p>
+                                    <p>{popularPlaces.attractions}+ attractions</p>
+                                    <p>{popularPlaces.shopping}+ shopping</p>
+                                    <p>{popularPlaces.restaurants}+ restaurants</p>
+                                </div>
+                            </div>
+                        </div>
+                        {/*    Cards , second row  case 5*/}
+                        <div>
+                            <h1 className={"text-3xl font-bold p-4 text-center"}>Hotels and Restaurants</h1>
+                            <div className={"flex overflow-x-scroll m-2 flex-wrap justify-center"}>
+                                {popularPlaces.popularHotels.map((place) => (
+                                    <Card key={place.location_id} className={"p-2 m-2 w-64 hover:bg-secondary"}>
+                                        <CardContent className={"flex flex-col gap-y-2"}>
+                                            {/*photo: item.result_object.photo.images.original.url,*/}
+                                            <img src={place.photo} alt={place.name}
+                                                 className={"rounded-2xl w-48 h-48 p-2"}/>
+                                            <p className={"font-bold text-wrap"}>{place.name}</p>
+                                            <p>
+                                                {place.rating}
+                                            </p>
+                                            <p>
+                                                {place.open_now_text ? place.open_now_text : "Status not available"}
+                                            </p>
+                                            <Button
+                                                onClick={() => handleAddToSelectedHotels(place)}
+                                                className={`w-32 self-center justify-self-end ${
+                                                    formData.selectedHotels.includes(place)
+                                                        ? 'bg-green-500 hover:bg-green-600 text-white'
+                                                        : ''
+                                                }`}
+                                            >
+                                                {formData.selectedHotels.includes(place) ? (
+                                                    <>
+                                                        <CheckCheck className={"h-6 w-6"}/>
+                                                        Added
+                                                    </>
+                                                ) : (
+                                                    'Add to Plan'
+                                                )}
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        </div>
+                        <div className={"place-self-end"}>
+                            <Buttons/>
                         </div>
                     </div>
                 );
             case 6:
                 return (
-                    <div>
-                        <Label className="text-lg font-bold mb-2">
-                            Select Popular Hotels
-                        </Label>
-                        <div className="grid gap-4">
-                            {popularHotels.map((hotel) => (
-                                <Card
-                                    key={hotel.id}
-                                    className="p-4 border border-gray-200 rounded-md shadow-md"
-                                >
-                                    <input
-                                        type="checkbox"
-                                        id={hotel.id}
-                                        name={hotel.name}
-                                        checked={formData.selectedHotels.some(
-                                            (item) => item.id === hotel.id
-                                        )}
-                                        onChange={(e) => handleCheckboxChange(e, "selectedHotels")}
-                                    />
-                                    <label htmlFor={hotel.id}>{hotel.name}</label>
-                                </Card>
-                            ))}
+                    <div className={"flex flex-col justify-end gap-y-2 p-4"}>
+                        <div className={"flex bg-muted p-6 rounded-2xl"}>
+                            <Card>
+                                <CardContent>
+                                    Test Card
+                                </CardContent>
+                            </Card>
+                            <div className={"flex flex-col items-start max-w-4xl"}>
+                                <h1 className={"text-3xl font-bold p-4"}>{popularPlaces.name}</h1>
+                                <p className={"text-foreground p-4"}>{popularPlaces.geo_description}</p>
+                                <div className={"flex gap-x-4 px-4"}>
+                                    <p>{popularPlaces.activities}+ activities</p>
+                                    <p>{popularPlaces.attractions}+ attractions</p>
+                                    <p>{popularPlaces.shopping}+ shopping</p>
+                                    <p>{popularPlaces.restaurants}+ restaurants</p>
+                                </div>
+                            </div>
+                        </div>
+                        {/*    Cards , second row  case 5*/}
+                        <div>
+                            <h1 className={"text-3xl font-bold p-4 text-center"}>Popular Activities</h1>
+                            <div className={"flex overflow-x-scroll m-2 flex-wrap justify-center"}>
+                                {popularPlaces.activities_list.map((place) => (
+                                    <Card key={place.location_id} className={"p-2 m-2 w-64 hover:bg-secondary"}>
+                                        <CardContent className={"flex flex-col gap-y-2"}>
+                                            {/*photo: item.result_object.photo.images.original.url,*/}
+                                            <img src={place.photo} alt={place.name}
+                                                 className={"rounded-2xl w-48 h-48 p-2"}/>
+                                            <p className={"font-bold text-wrap"}>{place.name}</p>
+                                            <p>
+                                                {place.rating}
+                                            </p>
+                                            <p>
+                                                {place.is_closed ? place.is_closed : "Status not available"}
+                                            </p>
+                                            <Button
+                                                onClick={() => handleAddToSelectedActivities(place)}
+                                                className={`w-32 self-center justify-self-end ${
+                                                    formData.selectedActivities.includes(place)
+                                                        ? 'bg-green-500 hover:bg-green-600 text-white'
+                                                        : ''
+                                                }`}
+                                            >
+                                                {formData.selectedActivities.includes(place) ? (
+                                                    <>
+                                                        <CheckCheck className={"h-6 w-6"}/>
+                                                        Added
+                                                    </>
+                                                ) : (
+                                                    'Add to Plan'
+                                                )}
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        </div>
+                        <div className={"place-self-end"}>
+                            <Buttons/>
                         </div>
                     </div>
                 );
             case 7:
                 return (
+                //     Display summary of entire plan
                     <div>
-                        {/* Display a summary of selected options */}
-                        <div className="border border-gray-200 p-4 rounded-md shadow-md">
-                            <h2 className="text-lg font-semibold mb-2">
-                                Summary of Your Plan:
-                            </h2>
-                            <p>
-                                <strong>Destination:</strong> {formData.destination}
-                            </p>
-                            <p>
-                                <strong>Travel Dates:</strong> {formData.startDate} to{" "}
-                                {formData.endDate}
-                            </p>
-                            <p>
-                                <strong>Budget:</strong> {formData.budget}
-                            </p>
-                            <p>
-                                <strong>Travel Type:</strong> {formData.travelType}
-                            </p>
-                            <p>
-                                <strong>Number of Adults:</strong> {formData.numAdults}
-                            </p>
-                            <p>
-                                <strong>Number of Children:</strong> {formData.numChildren}
-                            </p>
-                            <p>
-                                <strong>Preferred Travel Time:</strong>{" "}
-                                {formData.preferredTravelTime}
-                            </p>
-                            <p>
-                                <strong>Selected Places:</strong>
-                            </p>
-                            <ul>
+                        <h1>Summary</h1>
+                        <ul>
+                            <li>Destination: {formData.destination}</li>
+                            <li>Start Date: {formData.startDate}</li>
+                            <li>End Date: {formData.endDate}</li>
+                            <li>Budget: {formData.budget}</li>
+                            <li>Travel Type: {formData.travelType}</li>
+                            <li>Number of Adults: {formData.numAdults}</li>
+                            <li>Number of Children: {formData.numChildren}</li>
+                            <li>Preferred Travel Time: {formData.preferredTravelTime}</li>
+                            <li><b>Selected Places:</b>
                                 {formData.selectedPlaces.map((place) => (
-                                    <li key={place.id}>{place.name}</li>
+                                    <li key={place.location_id}>
+                                        {place.name,place.location_id}
+                                    </li>
                                 ))}
-                            </ul>
-                            <p>
-                                <strong>Selected Restaurants:</strong>
-                            </p>
-                            <ul>
-                                {formData.selectedRestaurants.map((restaurant) => (
-                                    <li key={restaurant.id}>{restaurant.name}</li>
-                                ))}
-                            </ul>
-                            <p>
-                                <strong>Selected Hotels:</strong>
-                            </p>
-                            <ul>
-                                {formData.selectedHotels.map((hotel) => (
-                                    <li key={hotel.id}>{hotel.name}</li>
-                                ))}
-                            </ul>
-                        </div>
+                            </li>
+                            <li><b>Selected Hotels: </b>{formData.selectedHotels.map((hotel) => (
+                                <li key={hotel.location_id}>
+                                    {hotel.name}
+                                </li>
+                            ))}</li>
+                            <li><b>Selected Activities:</b> {formData.selectedActivities.map((activity) => (
+
+                                <li key={activity.location_id}>
+                                    {activity.name}
+                                </li>
+                            ))}</li>
+                        </ul>
+                        <Buttons/>
                     </div>
+
                 );
 
             default:
