@@ -1,24 +1,34 @@
 "use client"
-import React from "react";
+import React, {useEffect} from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import PlanCard from "@/components/PlanCard";
 import { FaPlus } from "react-icons/fa";
 import {useRouter} from "next/navigation";
+import {Card, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
+import {LuMap} from "react-icons/lu";
 
 const Dashboard = () => {
   // Sample list of plans
   const router = useRouter();
+  const [plans, setPlans] = React.useState([]);
 
-  const plans = [
-    { id: 1, title: "Plan 1", description: "Description of Plan 1" },
-    { id: 2, title: "Plan 2", description: "Description of Plan 2" },
-    { id: 3, title: "Plan 3", description: "Description of Plan 3" },
-    { id: 4, title: "Plan 4", description: "Description of Plan 4" },
-    { id: 5, title: "Plan 5", description: "Description of Plan 5" },
-    { id: 6, title: "Plan 6", description: "Description of Plan 6" },
-    // Add more plans as needed
-  ];
+
+  const fetchPlans = async () => {
+    const response = await fetch("/api/plan", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    setPlans(data.plans);
+  }
+
+  useEffect(() => {
+    fetchPlans();
+
+  }, [plans]);
+
   const handleCreatePlan = () => {
    
     // Navigate to the form route
@@ -30,13 +40,23 @@ const Dashboard = () => {
       <Navbar />
       <div className="container mx-auto py-8 flex-grow relative">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
-          {plans.map((plan) => (
-            <PlanCard
-              key={plan.id}
-              title={plan.title}
-              description={plan.description}
-            />
-          ))}
+            {/* List of plans */}
+            {plans.map((plan) => (
+                  <Card className="w-full max-w-md">
+                    <CardHeader>
+                      <CardTitle className="text-xl">
+                        <LuMap className="mr-2 inline-block" />
+                        {plan.destination}
+                      </CardTitle>
+                      <CardDescription>
+                        <span className="text-gray-500">Start Date:</span> {plan.startDate} <br />
+                        <span className="text-gray-500">End Date:</span> {plan.endDate} <br />
+                      </CardDescription>
+                    </CardHeader>
+                </Card>
+
+                ))}
+
           {/* Create Plan button */}
           <div className="col-span-1 md:col-span-2 lg:col-span-3 flex justify-end items-center">
            
