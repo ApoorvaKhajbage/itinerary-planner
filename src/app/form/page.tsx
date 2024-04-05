@@ -16,17 +16,25 @@ import {Button} from "@/components/ui/button";
 import {LuMap, LuTag} from "react-icons/lu";
 import axios from "axios";
 import {FiUsers} from "react-icons/fi";
-import {CheckCheck, StarIcon, MapPin, Phone, Globe, Drama, BarChart2, CheckCircle, FileCheck, Calendar, HandCoins, Handshake, Users, Baby, Clock, Plane, LandPlot, Bed, Goal, Wand} from "lucide-react";
+import {CheckCheck, StarIcon, MapPin, Phone, Globe, Drama, BarChart2, CheckCircle, FileCheck, Calendar, HandCoins, Handshake, Users, Baby, Clock, Plane, LandPlot, Bed, Goal, Wand, Hotel} from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
+interface timeLine{
+        hotel:string;
+        places:string[];
+        activities:string[];
+        date:string;
+}
 export default function ItineraryForm() {
     const router = useRouter();
     const [formData, setFormData] = useState({
-        destination: "",
-        startDate: "",
-        endDate: "",
-        budget: "",
-        travelType: "",
+        destination: "Paris",
+        startDate: new Date().toISOString().split("T")[0],
+        // Add 7 days to the start date
+        endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+        budget: "Normal",
+        travelType: "solo",
         numAdults: "1",
         numChildren: "0",
         preferredTravelTime: "anytime",
@@ -57,6 +65,10 @@ export default function ItineraryForm() {
         ranking_category: any;
         ranking_subcategory: any;
     } | null>(null);
+    // create generatedPlan state with type timeLine array
+    const [generatedPlan, setGeneratedPlan] = useState<timeLine[]>([]);
+    const [showGeneratedPlan, setShowGeneratedPlan] = useState(false);
+   
 
     async function getPopularPlaces() {
 
@@ -284,10 +296,94 @@ export default function ItineraryForm() {
         setCurrentStep(currentStep - 1);
     };
 
-    const handleGeneratePlan = () => {
-        // Logic to generate plan using formData
-        console.log(formData);
-    };
+    const handleGeneratePlan = async () => {
+        try {
+          const plan = await generatePlan(formData);
+          
+            setGeneratedPlan(plan.days);
+            console.log(plan.days);
+            setShowGeneratedPlan(true);
+        } catch (error) {
+          console.error("Error generating plan:", error);
+          // Display an error message to the user
+          
+        }
+      };
+      
+    const generatePlan = async (formData: any): Promise<timeLine> => {
+        const datas = JSON.stringify(formData);
+        const prompt = getPrompt(datas);
+      
+        const requestBody = {
+          contents: [
+            {
+              parts: [
+                {
+                  text: prompt,
+                },
+              ],
+            },
+          ],
+        };
+      
+        const requestOptions = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        };
+      
+        const apiUrl =
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=AIzaSyBNJh-Z4JdnkFa3l0gfGw-FyNL4iRWd2fY";
+      
+        const response = await fetch(apiUrl, requestOptions);
+        if (!response.ok) {
+          throw new Error(`Error from API: ${response.status} - ${response.statusText}`);
+        }
+      
+        const data = await response.json();
+        if (data.candidates && data.candidates.length > 0) {
+          const jsonData = data.candidates[0].content.parts[0].text;
+          console.log(jsonData);
+          return JSON.parse(jsonData) as timeLine;
+        } else {
+          throw new Error("No response data available");
+        }
+      };
+      
+      const saveGeneratedPlan = async () => {
+        try{
+        let days = generatedPlan
+        console.log(days)
+        const response = await fetch('/api/saveplan/', {
+            method: "POST",
+            headers: {
+                "Content-Type":"application/json",
+            },
+            body: JSON.stringify({days})
+        })
+       console.log(response)
+      } catch (error){
+        console.log(error)
+      }
+    }
+      
+      const getPrompt = (data: string): string => {
+        return `This is the stringified version of formData : ${data}
+        timeline structure:
+        interface timeLine{
+            days:
+            {
+                hotel:string;
+                places:string[];
+                activities:string[];
+                date:Date;
+            }
+        
+        }
+        I want you to return a valid JSON object strictly following the above timeline structure schema. Use the above formData to plan the trip timeline with place and date. The date should be bounded between the given start date and end date. The places can be places, hotels, or activities. Avoid placing two hotels on the same date, and each day should have one hotel and can have multiple places and activities. Consider the latitude and longitude properties to estimate the distance and group the activities, places, and hotels accordingly for the day. Do not include any additional formatting like` + "```json``` in the response.Give all the days in a 'days' array.strictly dont add ```json``` in the response";
+      };
 
     const handleCancelStep = () => {
         // Logic to cancel form
@@ -771,7 +867,7 @@ export default function ItineraryForm() {
                                 <DialogTrigger key={place.location_id}>
                                 <CardContent className={"flex flex-col gap-y-2"}
                                 onClick={() => handleCardClick(place.location_id)}>
-                                <img src={place.photo} alt={place.name} className={"rounded-2xl w-48 h-48 p-2"} />
+                                <img src={place.photo} alt={place.name} className={"rounded-2xl w-full max-w-48 h-48 p-2"} />
                                 <p className={"font-bold text-wrap"}>{place.name}</p>
                                 <p>{place.rating}</p>
                                 <p>{place.open_now_text ? place.open_now_text : "Status not available"}</p>
@@ -867,7 +963,7 @@ export default function ItineraryForm() {
                                          onClick={() => handleCardClick(place.location_id)}>
                                             {/*photo: item.result_object.photo.images.original.url,*/}
                                             <img src={place.photo} alt={place.name}
-                                                 className={"rounded-2xl w-48 h-48 p-2"}/>
+                                                 className={"rounded-2xl w-full max-w-48 h-48 p-2"}/>
                                             <p className={"font-bold text-wrap"}>{place.name}</p>
                                             <p>
                                                 {place.rating}
@@ -951,7 +1047,7 @@ export default function ItineraryForm() {
                         <div>
                             <h1 className={"text-3xl font-bold p-4 text-center"}>Popular Activities</h1>
                             <div className={"flex overflow-x-scroll m-2 flex-wrap justify-center"}>
-                                <Dialog>
+                                <Dialog >
                                 {popularPlaces.activities_list.map((place) => (
                                     <Card key={place.location_id}
                                      className={"p-2 m-2 w-64 hover:bg-secondary"}
@@ -962,7 +1058,7 @@ export default function ItineraryForm() {
                                         onClick={() => handleCardClick(place.location_id)}>
                                             {/*photo: item.result_object.photo.images.original.url,*/}
                                             <img src={place.photo} alt={place.name}
-                                                 className={"rounded-2xl w-48 h-48 p-2"}/>
+                                                 className={"rounded-2xl w-full max-w-48 h-48 p-2"}/>
                                             <p className={"font-bold text-wrap"}>{place.name}</p>
                                             <p>
                                                 {place.rating}
@@ -993,7 +1089,7 @@ export default function ItineraryForm() {
                                 </div>
                                     </Card>
                                 ))}
-                            <DialogContent className="p-4">
+                            <DialogContent className="p-4 max-w-lg w-full">
                                     {extraDetails ? (
                                         <>
                                             <h1 className="text-2xl font-bold">{extraDetails.name}</h1>
@@ -1022,129 +1118,143 @@ export default function ItineraryForm() {
                         </div>
                     </div>
                 );
-            case 7:
-                    // return (
-                    //   <div className="p-4">
-                    //     <h1 className="text-3xl font-bold mb-4">Summary</h1>
-                    //     <div className="bg-gray-100 p-4 rounded-xl mb-4">
-                    //       <h2 className="text-xl font-bold mb-2">Itinerary Details</h2>
-                    //       <ul className="list-disc list-inside">
-                    //         <li>Destination: {formData.destination}</li>
-                    //         <li>Start Date: {formData.startDate}</li>
-                    //         <li>End Date: {formData.endDate}</li>
-                    //         <li>Budget: {formData.budget}</li>
-                    //         <li>Travel Type: {formData.travelType}</li>
-                    //         <li>Number of Adults: {formData.numAdults}</li>
-                    //         <li>Number of Children: {formData.numChildren}</li>
-                    //         <li>Preferred Travel Time: {formData.preferredTravelTime}</li>
-                    //       </ul>
-                    //     </div>
-                    //     <div className="bg-gray-100 p-4 rounded-xl">
-                    //       <h2 className="text-xl font-bold mb-2">Selected Places</h2>
-                    //       <ul className="list-disc list-inside">
-                    //         {formData.selectedPlaces.map((place) => (
-                    //           <li key={place.location_id}>{place.name}</li>
-                    //         ))}
-                    //       </ul>
-                    //     </div>
-                    //     <div className="bg-gray-100 p-4 rounded-xl mt-4">
-                    //       <h2 className="text-xl font-bold mb-2">Selected Hotels</h2>
-                    //       <ul className="list-disc list-inside">
-                    //         {formData.selectedHotels.map((hotel) => (
-                    //           <li key={hotel.location_id}>{hotel.name}</li>
-                    //         ))}
-                    //       </ul>
-                    //     </div>
-                    //     <div className="bg-gray-100 p-4 rounded-xl mt-4">
-                    //       <h2 className="text-xl font-bold mb-2">Selected Activities</h2>
-                    //       <ul className="list-disc list-inside">
-                    //         {formData.selectedActivities.map((activity) => (
-                    //           <li key={activity.location_id}>{activity.name}</li>
-                    //         ))}
-                    //       </ul>
-                    //     </div>
-                    //     <div className="flex justify-end mt-4">
-                    //       <Buttons />
-                    //     </div>
-                    //   </div>
-                    // );
+                case 7:
                     return (
-                        <div className="flex justify-center items-center h-screen">
-                          <Card className="w-full max-w-md">
-                            <CardHeader>
-                              <CardTitle className="text-xl">
-                                <div className="flex items-center gap-4">
-                                  <CheckCircle className="h-6 w-6"/>
-                                  <span>Step 7: Confirmation and Itinerary Generation</span>
-                                </div>
-                              </CardTitle>
-                              <CardDescription>
-                                Review your selections before generating your itinerary.
-                              </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="grid gap-4">
-                                <div className="flex flex-col items-center gap-2">
-                                  <Label className="flex items-center gap-2 text-2xl font-bold"><Plane className="h-8 w-8"/><span>{formData.destination}</span></Label>
-                                </div>
-                                <div className="flex-col mt-2 ">
-                                  <Label className="flex items-center gap-2">
-                                    <FileCheck className="h-8 w-8"/>
-                                    <span className="font-bold text-xl">Itinerary Details</span>
-                                  </Label>
-                                  <div className="flex flex-col gap-2">
-                                  <p className="flex gap-2 mt-4"><Calendar/><span>Date: {formData.startDate} - {formData.endDate}</span></p>
-                                  <p className="flex items-center gap-2 mt-2">
-                                    <HandCoins className="h-6 w-6"/>
-                                    Budget: {formData.budget}
-                                    </p>
-                                    <p className="flex items-center gap-2">
-                                    <Handshake className="h-6 w-6"/>
-                                    Travel Type: {formData.travelType}
-                                    </p>
-                                    <p className="flex items-center gap-2">
-                                    <Users className="h-6 w-6"/>
-                                    Number of Adults: {formData.numAdults}
-                                    </p>
-                                    <p className="flex items-center gap-2">
-                                    <Baby className="h-6 w-6"/>
-                                    Number of Children: {formData.numChildren}
-                                    </p>
-                                    <p className="flex items-center gap-2">
-                                    <Clock className="h-6 w-6"/>
-                                    Preferred Travel Time: {formData.preferredTravelTime}
-                                    </p>
-                                </div>
-                                </div>
+                      <div className="flex justify-around items-center h-screen">
+                        <Card className="w-full max-w-md">
+                          <CardHeader>
+                            <CardTitle className="text-xl">
+                              <div className="flex items-center gap-4">
+                                <CheckCircle className="h-6 w-6" />
+                                <span>Step 7: Confirmation and Itinerary Generation</span>
+                              </div>
+                            </CardTitle>
+                            <CardDescription>
+                              Review your selections before generating your itinerary.
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="grid gap-4">
+                              <div className="flex flex-col items-center gap-2">
+                                <Label className="flex items-center gap-2 text-2xl font-bold">
+                                  <Plane className="h-8 w-8" />
+                                  <span>{formData.destination}</span>
+                                </Label>
+                              </div>
+                              <div className="flex-col mt-2 ">
+                                <Label className="flex items-center gap-2">
+                                  <FileCheck className="h-8 w-8" />
+                                  <span className="font-bold text-xl">Itinerary Details</span>
+                                </Label>
                                 <div className="flex flex-col gap-2">
-                                  <Label className="flex items-center gap-2 font-bold text-xl"><LandPlot className="h-8 w-8"/><span>Selected Places:</span></Label>
-                                  <ul>
-                                    
-                                    {formData.selectedPlaces.map((place) => (
-                                      <li key={place.location_id}>{place.name}</li>
-                                    ))}
-                                  </ul>
-                                  <Label className="flex items-center gap-2 font-bold text-xl"><Bed className="h-8 w-8"/><span>Selected Hotels:</span></Label>
-                                  <ul>
-                                    {formData.selectedHotels.map((hotel) => (
-                                      <li key={hotel.location_id}>{hotel.name}</li>
-                                    ))}
-                                  </ul>
-                                  <Label className="flex items-center gap-2 font-bold text-xl"><Goal className="h-8 w-8"/><span>Selected Activities:</span></Label>
-                                  <ul>
-                                    {formData.selectedActivities.map((activity) => (
-                                      <li key={activity.location_id}>{activity.name}</li>
-                                    ))}
-                                  </ul>
+                                  <p className="flex gap-2 mt-4">
+                                    <Calendar />
+                                    <span>Date: {formData.startDate} - {formData.endDate}</span>
+                                  </p>
+                                  <p className="flex items-center gap-2 mt-2">
+                                    <HandCoins className="h-6 w-6" />
+                                    Budget: {formData.budget}
+                                  </p>
+                                  <p className="flex items-center gap-2">
+                                    <Handshake className="h-6 w-6" />
+                                    Travel Type: {formData.travelType}
+                                  </p>
+                                  <p className="flex items-center gap-2">
+                                    <Users className="h-6 w-6" />
+                                    Number of Adults: {formData.numAdults}
+                                  </p>
+                                  <p className="flex items-center gap-2">
+                                    <Baby className="h-6 w-6" />
+                                    Number of Children: {formData.numChildren}
+                                  </p>
+                                  <p className="flex items-center gap-2">
+                                    <Clock className="h-6 w-6" />
+                                    Preferred Travel Time: {formData.preferredTravelTime}
+                                  </p>
                                 </div>
                               </div>
-                            </CardContent>
-                            <CardFooter className={"flex justify-end"}>
-                                <Buttons/>
-                            </CardFooter>
-                          </Card>
-                        </div>
-                      );
+                              <div className="flex flex-col gap-2">
+                                <Label className="flex items-center gap-2 font-bold text-xl">
+                                  <LandPlot className="h-8 w-8" />
+                                  <span>Selected Places:</span>
+                                </Label>
+                                <ul>
+                                  {formData.selectedPlaces.map((place) => (
+                                    <li key={place.location_id}>{place.name}</li>
+                                  ))}
+                                </ul>
+                                <Label className="flex items-center gap-2 font-bold text-xl">
+                                  <Bed className="h-8 w-8" />
+                                  <span>Selected Hotels:</span>
+                                </Label>
+                                <ul>
+                                  {formData.selectedHotels.map((hotel) => (
+                                    <li key={hotel.location_id}>{hotel.name}</li>
+                                  ))}
+                                </ul>
+                                <Label className="flex items-center gap-2 font-bold text-xl">
+                                  <Goal className="h-8 w-8" />
+                                  <span>Selected Activities:</span>
+                                </Label>
+                                <ul>
+                                  {formData.selectedActivities.map((activity) => (
+                                    <li key={activity.location_id}>{activity.name}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </div>
+                          </CardContent>
+                          <CardFooter className={"flex justify-end"}>
+                            <Buttons />
+                          </CardFooter>
+                        </Card>
+                        {showGeneratedPlan && (
+        <div>
+          <h1 className="text-2xl font-bold">Generated Plan</h1>
+          <div className="flex flex-col gap-4">
+            {/* {generatedPlan.map((day, index) => (
+              <div key={index} className="flex flex-col gap-2">
+                <h2 className="text-xl font-bold">Day {index + 1}</h2>
+                {day.hotel && <p>Hotel: {day.hotel}</p>}
+                {day.places && <p>Places: {day.places.join(", ")}</p>}
+                {day.activities && <p>Activities: {day.activities.join(", ")}</p>}
+                {day.date && <p>Date: {day.date}</p>}
+              </div>
+            ))} */}
+                <Carousel 
+                className="w-full max-w-xl rounded-xl"
+                >
+      <CarouselContent>
+        {generatedPlan.map((day, index) => (
+          <CarouselItem key={index}>
+            <div className="p-1">
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center p-6">
+                <h2 className="text-xl font-bold">Day {index + 1}</h2>
+                <p>
+                <Hotel className="h-4 w-4"/>
+                {day.hotel && <p>Hotel: {day.hotel}</p>}
+                </p>
+                {day.places && <p>Places: {day.places.join(", ")}</p>}
+                {day.activities && <p>Activities: {day.activities.join(", ")}</p>}
+                {day.date && <p>Date: {day.date}</p>}
+                </CardContent>
+              </Card>
+            </div>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious />
+      <CarouselNext />
+    </Carousel>
+    <Button onClick={saveGeneratedPlan}>Save Plan</Button>
+
+          </div>
+          
+        </div>
+      )}
+                      </div>
+                    );
                       
 
             default:
@@ -1159,3 +1269,58 @@ export default function ItineraryForm() {
 }
 
 
+
+
+
+// {
+//     "days": [
+//         {
+//             "date": "2024-04-05",
+//             "hotel": "Park Hyatt Paris - Vendome",
+//             "places": [
+//                 "Paris Metro"
+//             ],
+//             "activities": [
+//                 "Paris Walking Food Tour with Secret Food Tours"
+//             ]
+//         },
+//         {
+//             "date": "2024-04-06",
+//             "hotel": "Saint James Paris",
+//             "places": [
+//                 "The Paris Catacombs"
+//             ],
+//             "activities": []
+//         },
+//         {
+//             "date": "2024-04-07",
+//             "hotel": "Hyatt Paris Madeleine",
+//             "places": [],
+//             "activities": []
+//         },
+//         {
+//             "date": "2024-04-08",
+//             "hotel": "Park Hyatt Paris - Vendome",
+//             "places": [],
+//             "activities": []
+//         },
+//         {
+//             "date": "2024-04-09",
+//             "hotel": "Saint James Paris",
+//             "places": [],
+//             "activities": []
+//         },
+//         {
+//             "date": "2024-04-10",
+//             "hotel": "Hyatt Paris Madeleine",
+//             "places": [],
+//             "activities": []
+//         },
+//         {
+//             "date": "2024-04-11",
+//             "hotel": "Park Hyatt Paris - Vendome",
+//             "places": [],
+//             "activities": []
+//         }
+//     ]
+// }
