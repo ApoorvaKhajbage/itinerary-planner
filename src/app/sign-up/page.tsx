@@ -3,12 +3,13 @@ import { useState } from 'react';
 import Layout from '@/layout/layout';
 import Link from 'next/link';
 import Head from 'next/head';
-import { FaRegKeyboard } from "react-icons/fa6";
+import { FaArrowLeft, FaRegKeyboard } from "react-icons/fa6";
 import { HiAtSymbol, HiOutlineUser } from "react-icons/hi";
 import { Button } from '@/components/ui/button';
 import styles from '@/styles/Form.module.css';
 import { registerValidate } from '@/lib/validate';
 import { useRouter } from 'next/navigation';
+import {toast} from 'react-hot-toast';
 
 const SignUpPage = () => {
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -51,8 +52,9 @@ const SignUpPage = () => {
             } else if (res.status === 200) {
                 setErrors({ ...errors, message: "" });
                 // Redirect or show success message
+                toast.success("Signed up successfully");
                 console.log("Signed up successfully");
-                router.push("/sign-in");
+                router.push("/verifymessage");
             } else {
                 setErrors({ ...errors, message: "Error occurred while signing up" });
             }
@@ -72,6 +74,12 @@ const SignUpPage = () => {
                 <title>Sign Up</title>
             </Head>
             <section className='w-3/4 mx-auto flex flex-col gap-10'>
+            <div className="flex justify-end">
+                <Link href="/" >
+                    <FaArrowLeft className="text-black text-xl cursor-pointer" />
+                </Link>
+            </div>
+            
                 <div className='title'>
                     <h1 className='text-gray-800 text-4xl font-bold py-4'>Register</h1>
                     <p className='w-3/4 mx-auto text-gray-400'>Let's start the journey</p>

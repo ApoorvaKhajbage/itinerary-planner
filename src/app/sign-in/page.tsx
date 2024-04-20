@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Layout from '@/layout/layout';
 import Link from 'next/link';
 import Head from 'next/head';
-import { FaRegKeyboard } from "react-icons/fa6";
+import { FaArrowLeft, FaRegKeyboard } from "react-icons/fa6";
 import { HiAtSymbol } from "react-icons/hi";
 import { Button } from '@/components/ui/button';
 import styles from '@/styles/Form.module.css';
@@ -64,7 +64,13 @@ const SignInPage = () => {
             <Head>
                 <title>Sign In</title>
             </Head>
+           
             <section className='w-3/4 mx-auto flex flex-col gap-10'>
+            <div className="flex justify-end">
+                <Link href="/" >
+                    <FaArrowLeft className="text-black text-xl cursor-pointer" />
+                </Link>
+            </div>
                 <div className='title'>
                     <h1 className='text-gray-800 text-4xl font-bold py-4'>Sign In</h1>
                 </div>

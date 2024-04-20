@@ -1,12 +1,13 @@
 "use client"
 import Link from "next/link";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
 import { AvatarImage, Avatar } from "@/components/ui/avatar";
+import { FaPlus } from "react-icons/fa";
+import {useRouter} from "next/navigation";
 
 export default function Component() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
+  const router = useRouter();
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
@@ -15,18 +16,44 @@ export default function Component() {
     setIsDropdownOpen(false);
   };
 
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("/api/users/signout", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data.message);
+        router.push("/"); // Redirect the user to the login page or any other desired page
+      } else {
+        console.error("Error logging out:", response.status);
+      }
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
   return (
     <nav className="bg-white px-4 py-2 shadow-md">
       <div className="container mx-auto flex items-center justify-between">
-        <Link href="#" className="text-xl font-bold text-indigo-500">
-          Wanderlog
+        <Link href="/dashboard" className="text-2xl font-bold text-indigo-500">
+        ExploreEase
         </Link>
         <div className="flex items-center space-x-4">
-          <Input
-            className="w-[400px] rounded-md border px-4 py-2 border-indigo-300 focus:border-none focus:ring-2 focus:ring-none focus:ring-indigo-300 focus:ring-offset-2 focus:ring-offset-white text-sm text-gray-700 placeholder-gray-400"
-            placeholder="Search"
-            type="search"
-          />
+         {/* Create Plan button */}
+         <div className="col-span-1 md:col-span-2 lg:col-span-3 flex justify-end items-center">
+            <button
+              className="bg-indigo-500 text-white p-4 rounded-full shadow-lg flex items-center hover:bg-indigo-400 transition-colors duration-300 ease-in-out"
+              onClick={() => router.push("/form")}
+            >
+              <FaPlus className="text-2xl" />
+              <span className="ml-2">Create Plan</span>
+            </button>
+          </div>
           <div className="relative" onClick={toggleDropdown}>
             <Avatar>
               <AvatarImage
@@ -41,7 +68,7 @@ export default function Component() {
                 <ul className="py-1">
                   <li>
                     <Link
-                      href="#"
+                      href="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       onClick={closeDropdown}
                     >
@@ -49,14 +76,18 @@ export default function Component() {
                     </Link>
                   </li>
                   <li>
-                    <Link
-                      href="/"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={closeDropdown}
-                    >
-                      Logout
-                    </Link>
-                  </li>
+                  <Link
+                    href="#"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleLogout();
+                      closeDropdown();
+                    }}
+                  >
+                    Logout
+                  </Link>
+                </li>
                 </ul>
               </div>
             )}
