@@ -38,9 +38,9 @@ The Personalized Itinerary Planner empowers users to create detailed travel plan
 ## Screenshots
 <img width="1668" alt="Screenshot 2024-04-12 at 7 14 36 AM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/b28c1a63-b970-492e-a216-d93c620e1ff0">
 <img width="1668" alt="Screenshot 2024-04-12 at 7 14 59 AM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/da33e299-186b-4695-bebe-71210f2d7fd5">
-<img width="816" alt="Screenshot 2024-04-20 at 7 41 25 PM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/77974c71-7c86-4833-ac93-8ef52791163e">
-<img width="812" alt="Screenshot 2024-04-20 at 8 13 08 PM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/3c01ca67-4a6e-4625-a93f-afc4e611c98d">
-<img width="812" alt="Screenshot 2024-04-20 at 8 13 53 PM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/7ae85d7d-9e52-4204-8c54-e82d71bb9b57">
+<img width="1668" alt="Screenshot 2024-04-20 at 7 41 25 PM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/77974c71-7c86-4833-ac93-8ef52791163e">
+<img width="1668" alt="Screenshot 2024-04-20 at 8 13 08 PM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/3c01ca67-4a6e-4625-a93f-afc4e611c98d">
+<img width="1668" alt="Screenshot 2024-04-20 at 8 13 53 PM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/7ae85d7d-9e52-4204-8c54-e82d71bb9b57">
 <img width="1668" alt="Screenshot 2024-04-12 at 7 14 49 AM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/351749b4-b695-4f6a-91fc-a3ab136acba0">
 <img width="1668" alt="Screenshot 2024-04-12 at 7 15 51 AM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/c355205c-11b6-4747-9fda-9a29ea61a5b1">
 <img width="1668" alt="Screenshot 2024-04-12 at 7 16 58 AM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/f201d449-250c-449f-bd2a-d74329e2272b">
