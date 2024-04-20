@@ -79,4 +79,4 @@ Feel free to explore and contribute to enhance the Personalized Itinerary Planne
 
 ---
 
-**Note**: Please ensure that all necessary environment variables are set up for proper functionality, including API keys, database credentials, and email configurations for Nodemailer and mailtrap.
+**Note**: Please ensure that all necessary environment variables are set up for proper functionality, including API keys, database credentials, and email configurations for Nodemailer and mailtrap(email service provider used in this project).
