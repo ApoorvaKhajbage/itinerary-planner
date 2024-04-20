@@ -25,7 +25,6 @@ This application provides a user-friendly interface for generating personalized 
 - **MongoDB**: Database for storing user data and plan information
 - **Tailwind CSS**: For styling the user interface
 - **Nodemailer**: Used for sending emails, such as account verification and password reset notifications
-- **Shadcn UI Library**: Additional UI components for enhancing the user experience
 - **bcryptjs**: For password hashing and security
 - **JWT**: JSON Web Tokens for user authentication
 
