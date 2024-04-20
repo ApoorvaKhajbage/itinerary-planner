@@ -34,7 +34,7 @@ The Personalized Itinerary Planner empowers users to create detailed travel plan
 
 ## Screenshots
 
-*(Insert screenshots of the application interface here)*
+![Uploading Screenshot 2024-04-12 at 7.14.36 AM.png…]()
 
 ## Getting Started
 
