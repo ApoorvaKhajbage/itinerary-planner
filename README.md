@@ -38,6 +38,7 @@ The Personalized Itinerary Planner empowers users to create detailed travel plan
 ## Screenshots
 <img width="1668" alt="Screenshot 2024-04-12 at 7 14 36 AM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/b28c1a63-b970-492e-a216-d93c620e1ff0">
 <img width="1668" alt="Screenshot 2024-04-12 at 7 14 59 AM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/da33e299-186b-4695-bebe-71210f2d7fd5">
+<img width="816" alt="Screenshot 2024-04-20 at 7 41 25 PM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/77974c71-7c86-4833-ac93-8ef52791163e">
 <img width="812" alt="Screenshot 2024-04-20 at 8 13 08 PM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/3c01ca67-4a6e-4625-a93f-afc4e611c98d">
 <img width="812" alt="Screenshot 2024-04-20 at 8 13 53 PM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/7ae85d7d-9e52-4204-8c54-e82d71bb9b57">
 <img width="1668" alt="Screenshot 2024-04-12 at 7 14 49 AM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/351749b4-b695-4f6a-91fc-a3ab136acba0">
@@ -52,6 +53,9 @@ Plan form:
 <img width="784" alt="Screenshot 2024-04-20 at 7 31 14 PM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/8b940d84-c722-4ebe-88d7-1d6e0bd52cd3">
 <img width="1672" alt="Screenshot 2024-04-20 at 7 58 23 PM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/b0d3eaa4-540c-465b-a75f-ddfcfd310ead">
 <img width="1672" alt="Screenshot 2024-04-20 at 7 59 00 PM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/19fd2138-dcea-4954-9f05-97b76f61efb1">
+<img width="1668" alt="Screenshot 2024-04-12 at 7 21 50 AM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/7632e8f9-17fb-4400-904c-463ed18d7a28">
+
+
 <img width="1672" alt="Screenshot 2024-04-20 at 7 59 23 PM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/5f8a1e7d-a822-4e0c-a20a-363075796ed6">
 <img width="845" alt="Screenshot 2024-04-20 at 7 59 41 PM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/43448619-7cc2-4994-9377-1019af6712bf">
 <img width="1668" alt="Screenshot 2024-04-20 at 8 00 28 PM" src="https://github.com/ApoorvaKhajbage/it/assets/100022222/89167343-5645-4c1f-9fe7-fed4d53d2712">
