@@ -95,7 +95,7 @@ export default function ItineraryForm() {
                 lang: 'en_US'
             },
             headers: {
-                'X-RapidAPI-Key': 'fd4182cd10msh9b8fc7d77a696bep1632d6jsn1e6475ca59eb',
+                'X-RapidAPI-Key': 'c5a792add0msheddbff64ed8793fp16a063jsndf993bb04df5',
                 'X-RapidAPI-Host': 'travel-advisor.p.rapidapi.com'
             }
         };
@@ -190,8 +190,8 @@ export default function ItineraryForm() {
                 lang: 'en_US'
             },
             headers: {
-                'X-RapidAPI-Key': 'fd4182cd10msh9b8fc7d77a696bep1632d6jsn1e6475ca59eb',
-                'X-RapidAPI-Host': 'travel-advisor.p.rapidapi.com'
+                'X-RapidAPI-Key': process.env.X_RAPIDAPI_KEY!,
+                'X-RapidAPI-Host': process.env.X_RAPIDAPI_HOST!
             }
         };
     
@@ -344,7 +344,7 @@ export default function ItineraryForm() {
         };
       
         const apiUrl =
-          "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=AIzaSyBNJh-Z4JdnkFa3l0gfGw-FyNL4iRWd2fY";
+          process.env.NEXT_PUBLIC_GEMINI_API_URL!;
       
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {

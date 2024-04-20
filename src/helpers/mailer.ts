@@ -34,19 +34,11 @@ export const sendEmail = async ({ email, emailType, userId }: { email: string, e
           host: "sandbox.smtp.mailtrap.io",
           port: 2525,
           auth: {
-              user: "247532123226f5",
-              pass: "fadc5ac2d95aaf"
+              user: process.env.MAILTRAP_USER!,
+              pass: process.env.MAILTRAP_PASS!
           }
       });
 
-    //   const mailOptions = {
-    //       from: 'apoorva@apoorva.ai',
-    //       to: email,
-    //       subject: emailType === 'VERIFY' ? "Verify your email" : "Reset your password",
-    //       html: `<p> Click <a href="${actionUrl}"> here </a> to ${actionText} or copy and paste the link below in your browser.
-    //       <br> ${actionUrl}
-    //       </p>`,
-    //   }
     const mailOptions = {
         from: 'apoorva@apoorva.ai',
         to: email,
