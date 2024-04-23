@@ -95,8 +95,8 @@ export default function ItineraryForm() {
                 lang: 'en_US'
             },
             headers: {
-                'X-RapidAPI-Key': 'c5a792add0msheddbff64ed8793fp16a063jsndf993bb04df5',
-                'X-RapidAPI-Host': 'travel-advisor.p.rapidapi.com'
+                'X-RapidAPI-Key': process.env.X_RAPIDAPI_KEY,
+                'X-RapidAPI-Host': process.env.X_RAPIDAPI_HOST
             }
         };
 
